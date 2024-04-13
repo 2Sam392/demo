@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 @Entity
 @Builder
 @Table(name = "students")
-public class studentsmodel {
+public class StudentsModel {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -26,7 +25,7 @@ public class studentsmodel {
     private String studentID;
     private String firstName;
     private String lastName;
-    private boolean isUpdated = false;
+    private boolean isAccountUpdated = false;
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
