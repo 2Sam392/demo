@@ -2,17 +2,31 @@ package com.example.demo.controllers.auth;
 import com.example.demo.Config.JwtService;
 import com.example.demo.controllers.student.StudentService;
 import com.example.demo.models.Role;
+import com.example.demo.models.StudentsModel;
 import com.example.demo.models.UserModel;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+
+
+
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordencoder;
@@ -20,6 +34,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final StudentRepository studentRepository;
     private final StudentService studentService;
+   
+
+    @Value("${financeMicroserviceAPI}")
+    private String financeURL;
+
+    @Value("${libraryMicroserviceAPI}")
+    private String libraryURL;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = UserModel.builder()
@@ -32,8 +53,23 @@ public class AuthenticationService {
                 .build();
 
        userRepository.save(user);
-
        studentRepository.save(studentService.createStudent(user));
+
+       //create a student account in the library and finance microservices
+       RestTemplate restTemplate = new RestTemplate();
+
+        Optional<StudentsModel> studentsModel = studentRepository.findById(user.getId());
+        String studentID = studentsModel.get().getStudentID();
+        String requestBody = "{\"studentId\": \"" + studentID + "\"}";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+
+        restTemplate.postForObject(financeURL+"/accounts/", requestEntity, FinanceResponse.class);
+        restTemplate.postForObject(libraryURL+"/api/register", requestEntity, String.class);
+
 
         var jwtToken =jwtService.generateToken(user);
         return AuthenticationResponse.builder()

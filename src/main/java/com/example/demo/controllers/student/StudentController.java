@@ -16,4 +16,9 @@ public class StudentController {
     public ResponseEntity<StudentsModel> updateStudent(@PathVariable("id") int id,  @RequestHeader("Authorization") String authToken,@RequestBody StudentRequest studentRequest) {
         return ResponseEntity.ok(studentService.updateStudent(id,authToken,studentRequest));
     }
+
+    @GetMapping("/viewprofile/{id}")
+    public ResponseEntity<StudentsModel> getStudent(@PathVariable("id") int id,  @RequestHeader("Authorization") String authToken) {
+        return ResponseEntity.ok(studentService.viewStudentByID(id, authToken));
+    }
 }

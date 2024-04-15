@@ -14,6 +14,12 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
 
+server:
+  port: 8084
+
+financeMicroserviceAPI: http://localhost:8081
+libraryMicroserviceAPI: http://localhost:80
+
 application:
   security:
     jwt:
