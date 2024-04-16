@@ -7,8 +7,8 @@ import com.example.demo.models.UserModel;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,8 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpEntity;
+
 
 
 
@@ -34,7 +33,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final StudentRepository studentRepository;
     private final StudentService studentService;
-   
+
 
     @Value("${financeMicroserviceAPI}")
     private String financeURL;
@@ -60,15 +59,15 @@ public class AuthenticationService {
 
         Optional<StudentsModel> studentsModel = studentRepository.findById(user.getId());
         String studentID = studentsModel.get().getStudentID();
-        String requestBody = "{\"studentId\": \"" + studentID + "\"}";
+        MicroserviceRequest microserviceRequest = new MicroserviceRequest(studentID);
+
+        HttpEntity<MicroserviceRequest> entity = new HttpEntity<>(microserviceRequest);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        headers.setContentType(MediaType.APPLICATION_JSON);;
 
-
-        restTemplate.postForObject(financeURL+"/accounts/", requestEntity, FinanceResponse.class);
-        restTemplate.postForObject(libraryURL+"/api/register", requestEntity, String.class);
+        restTemplate.postForObject(financeURL+"/accounts/", entity,FinanceResponse.class);
+        //restTemplate.postForObject(libraryURL+"/register", entity, LibraryResponse.class);
 
 
         var jwtToken =jwtService.generateToken(user);
