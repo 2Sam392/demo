@@ -57,8 +57,8 @@ public class AuthenticationService {
        //create a student account in the library and finance microservices
        RestTemplate restTemplate = new RestTemplate();
 
-        Optional<StudentsModel> studentsModel = studentRepository.findById(user.getId());
-        String studentID = studentsModel.get().getStudentID();
+        StudentsModel studentsModel = studentRepository.findById(user.getId());
+        String studentID = studentsModel.getStudentID();
         MicroserviceRequest microserviceRequest = new MicroserviceRequest(studentID);
 
         HttpEntity<MicroserviceRequest> entity = new HttpEntity<>(microserviceRequest);

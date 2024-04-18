@@ -1,7 +1,8 @@
 package com.example.demo.repository;
 
-import com.example.demo.models.StudentCourseModel;
+import com.example.demo.models.CourseModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CourseRepository extends JpaRepository<StudentCourseModel, Integer> {
-}
+public interface CourseRepository extends JpaRepository<CourseModel, Integer> {
+CourseModel findById(int id);
+ }

@@ -15,22 +15,21 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name = "students")
-public class StudentsModel {
+@Table(name = "courses")
 
+public class CourseModel {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private int id;
-    @Column(nullable = false, unique = true, length = 45)
-    private String email;
-    @Column(nullable = false, unique = true, length = 20)
-    private String studentID;
-    private String firstName;
-    private String lastName;
+    private int Id;
+    @Column(nullable = false, unique = true, length = 25)
+    private String CourseName;
+    private String CourseDescription;
+    private double CourseFee;
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-   @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-   private List<StudentCourseModel> studentCourses = new ArrayList<>();
+    @OneToMany(mappedBy = "course")
+    private List<StudentCourseModel> studentCourses = new ArrayList<>();
+
 }

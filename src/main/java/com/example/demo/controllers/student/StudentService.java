@@ -44,18 +44,16 @@ public class StudentService {
         String username = jwtService.extractUsername(authToken.substring(7));
 
         Optional<UserModel> user = userRepository.findByUsername(username);
-        Optional<StudentsModel> studentsModel = studentRepository.findById(id);
+        StudentsModel studentsModel = studentRepository.findById(id);
         int userid = user.get().getId();
-        int student_id = studentsModel.get().getId();
+        int student_id = studentsModel.getId();
 
         // Check if user is authenticated
-        if (username != null && user.isPresent() && studentsModel.isPresent() && studentsModel.get().getId() == user.get().getId()) {
-            StudentsModel student = studentsModel.get();
-            student.setFirstName(studentRequest.getFirstname());
-            student.setLastName(studentRequest.getLastname());
-            student.setUpdatedAt(LocalDateTime.now());
-            student.setAccountUpdated(true);
-            return studentRepository.save(student);
+        if (username != null && user.isPresent() && studentsModel!=null && studentsModel.getId() == user.get().getId()) {
+            studentsModel.setFirstName(studentRequest.getFirstname());
+            studentsModel.setLastName(studentRequest.getLastname());
+            studentsModel.setUpdatedAt(LocalDateTime.now());
+            return studentRepository.save(studentsModel);
         } else {
             // Unauthorized or resource not found
             throw new RuntimeException("Unauthorized or resource not found");
@@ -67,11 +65,11 @@ public class StudentService {
         String username = jwtService.extractUsername(authToken.substring(7));
 
         Optional<UserModel> user = userRepository.findByUsername(username);
-        Optional<StudentsModel> studentsModel = studentRepository.findById(id);
+        StudentsModel studentsModel = studentRepository.findById(id);
 
         // Check if user is authenticated
-        if (username != null && user.isPresent() && studentsModel.isPresent() && studentsModel.get().getId() == user.get().getId()) {
-            StudentsModel student = studentsModel.get();
+        if (username != null && user.isPresent() && studentsModel!=null && studentsModel.getId() == user.get().getId()) {
+            StudentsModel student = studentsModel;
             student.getId();
             student.getStudentID();
             student.getLastName();
