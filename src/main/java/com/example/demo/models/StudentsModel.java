@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -30,6 +32,6 @@ public class StudentsModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-   // @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    //private List<StudentCourseModel> studentCourses = new ArrayList<>();
+   //@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+   //private List<StudentCourseModel> studentCourses = new ArrayList<>();
 }
