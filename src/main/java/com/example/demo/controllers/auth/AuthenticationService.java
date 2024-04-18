@@ -66,7 +66,7 @@ public class AuthenticationService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);;
 
-        //restTemplate.postForObject(financeURL+"/accounts/", entity,FinanceResponse.class);
+        restTemplate.postForObject(financeURL+"/accounts/", entity,FinanceResponse.class);
         restTemplate.postForObject(libraryURL+"/api/register", entity, LibraryResponse.class);
 
 
