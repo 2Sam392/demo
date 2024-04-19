@@ -1,9 +1,12 @@
 package com.example.demo.controllers.student;
 
+import com.example.demo.controllers.Course.CourseResponse;
 import com.example.demo.models.StudentsModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/student")
@@ -20,5 +23,11 @@ public class StudentController {
     @GetMapping("/viewprofile/{id}")
     public ResponseEntity<StudentsModel> getStudent(@PathVariable("id") int id,  @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(studentService.viewStudentByID(id, authToken));
+    }
+
+    @GetMapping("/getcourses/{id}")
+    public ResponseEntity<List<CourseResponse>> getCourses(@PathVariable int id,
+                                                           @RequestHeader("Authorization") String authToken) {
+        return ResponseEntity.ok(studentService.viewEnrolledCourses(id,authToken));
     }
 }

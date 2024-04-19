@@ -17,4 +17,8 @@ public class CourseResponse {
     private double CourseFee;
     private String Reference;
     private String Message;
+
+    public CourseResponse(int id, String courseName, String courseDescription, double courseFee, String reference) {
+
+    }
 }

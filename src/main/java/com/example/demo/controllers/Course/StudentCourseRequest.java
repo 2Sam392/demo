@@ -16,6 +16,4 @@ public class StudentCourseRequest {
     private LocalDate dueDate= LocalDate.now();
     private String type ="TUITION_FEES";
     private Account account;
-
-
 }

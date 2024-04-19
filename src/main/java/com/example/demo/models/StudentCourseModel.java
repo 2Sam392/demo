@@ -20,10 +20,6 @@ public class StudentCourseModel {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int Id;
-//    @Column(name = "student_id")
-//    private int studentId;
-//    @Column(name = "course_id")
-//    private int courseId;
     private String Reference;
 
     @Column(updatable = false)

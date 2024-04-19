@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseRequest {
-    private int CourseId;
+    private String CourseName;
 }

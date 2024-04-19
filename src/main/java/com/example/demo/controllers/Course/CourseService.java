@@ -1,8 +1,6 @@
 package com.example.demo.controllers.Course;
 
 import com.example.demo.Config.JwtService;
-import com.example.demo.controllers.auth.FinanceResponse;
-import com.example.demo.controllers.auth.MicroserviceRequest;
 import com.example.demo.models.CourseModel;
 import com.example.demo.models.StudentCourseModel;
 import com.example.demo.models.StudentsModel;
@@ -18,9 +16,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.example.demo.controllers.Course.CourseRequest;
 
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +60,72 @@ public class CourseService {
         }
     }
 
+    public CourseResponse enrolStudent(String name, int studentId, String authToken) {
+        String username = jwtService.extractUsername(authToken.substring(7));
+        Optional<UserModel> user = userRepository.findByUsername(username);
+        int userId = user.get().getId();
+
+        if (username == null || !user.isPresent() || userId != studentId) {
+            throw new RuntimeException("Unauthorized or resource not found");
+        }
+
+        // Fetch the course from the database using the courseId
+        CourseModel courseModel = courseRepository.findByCourseName(name);
+
+        if (courseModel == null) {
+            return CourseResponse.builder()
+                    .Message("Course not found")
+                    .build();
+        }
+
+        StudentsModel studentModel = studentRepository.findById(studentId);
+        if (studentModel == null) {
+            return CourseResponse.builder()
+                    .Message("Student record is not found")
+                    .build();
+        }
+
+
+        if (studentCourseRepository.existsByCourseAndStudent(courseModel, studentModel)) {
+            return CourseResponse.builder()
+                    .Message("You are already enrolled in this course")
+                    .build();
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        StudentCourseRequest studentCourseRequest = new StudentCourseRequest();
+        studentCourseRequest.setAmount(courseModel.getCourseFee());
+
+        Account account = new Account();
+        account.setStudentId(studentModel.getStudentID());
+        studentCourseRequest.setAccount(account);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<StudentCourseRequest> entity = new HttpEntity<>(studentCourseRequest, headers);
+
+        StudentCourseResponse studentCourseResponse = restTemplate.postForObject(financeURL + "/invoices/", entity, StudentCourseResponse.class);
+
+        StudentCourseModel enrollStudent = StudentCourseModel.builder()
+                .student(studentModel)
+                .course(courseModel)
+                .Reference(studentCourseResponse.getReference())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+
+        studentCourseRepository.save(enrollStudent);
+
+        return CourseResponse.builder()
+                .CourseDescription(courseModel.getCourseDescription())
+                .CourseName(courseModel.getCourseName())
+                .CourseFee(courseModel.getCourseFee())
+                .Reference(enrollStudent.getReference())
+                .Message(null)
+                .Id(enrollStudent.getId())
+                .build();
+    }
     private CourseResponse CourseModelToResponse(CourseModel courseModel) {
         return new CourseResponse(
                 courseModel.getId(),
@@ -69,74 +137,5 @@ public class CourseService {
         );
     }
 
-    public CourseResponse enrolStudent(int id, String authToken, CourseRequest courseRequest) {
-        String username = jwtService.extractUsername(authToken.substring(7));
-
-        Optional<UserModel> user = userRepository.findByUsername(username);
-
-        int userid = user.get().getId();
-        int courseId = courseRequest.getCourseId();
-
-
-        if (username == null || user == null || id != userid) {
-            throw new RuntimeException("Unauthorized or resource not found");
-        }
-
-        CourseModel courseModel = courseRepository.findById(courseId);
-        if (courseModel == null) {
-            return CourseResponse.builder()
-                    .Message("Course not found")
-                    .build();
-        }
-
-        StudentsModel studentModel = studentRepository.findById(id);
-        if (studentModel == null) {
-            return CourseResponse.builder()
-                    .Message("Student record is not found")
-                    .build();
-        }
-
-        StudentCourseModel studentCourseModel = studentCourseRepository.findByCourseAndStudent(courseModel, studentModel);
-        if (studentCourseModel != null) {
-            return CourseResponse.builder()
-                    .Message("You are already enrolled in this course")
-                    .build();
-        }
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        StudentCourseRequest studentCourseRequest = new StudentCourseRequest();
-        studentCourseRequest.setAmount(courseModel.getCourseFee());
-
-        Account account = new Account();
-        account.setStudentId(studentModel.getStudentID());
-        studentCourseRequest.setAccount(account);
-
-        HttpEntity<StudentCourseRequest> entity = new HttpEntity<>(studentCourseRequest);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        StudentCourseResponse studentCourseResponse = restTemplate.postForObject(financeURL + "/accounts/", entity, StudentCourseResponse.class);
-
-
-        StudentCourseModel enrollStudent = StudentCourseModel.builder()
-                .student(studentModel)
-                .course(courseModel)
-                .Reference(studentCourseResponse.getReference())
-                .createdAt(java.time.LocalDateTime.now())
-                .build();
-
-        new CourseResponse();
-        return CourseResponse.builder()
-                .CourseDescription(courseModel.getCourseDescription())
-                .CourseName(courseModel.getCourseName())
-                .CourseFee(courseModel.getCourseFee())
-                .Reference(enrollStudent.getReference())
-                .Message(null)
-                .Id(enrollStudent.getId())
-                .build();
-
-    }
 }
 

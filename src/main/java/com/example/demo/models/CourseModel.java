@@ -21,10 +21,10 @@ public class CourseModel {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int Id;
-    @Column(nullable = false, unique = true, length = 25)
-    private String CourseName;
-    private String CourseDescription;
-    private double CourseFee;
+    @Column(nullable = false, unique = true)
+    private String courseName;
+    private String courseDescription;
+    private double courseFee;
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

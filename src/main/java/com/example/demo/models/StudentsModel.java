@@ -30,7 +30,4 @@ public class StudentsModel {
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-   @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-   private List<StudentCourseModel> studentCourses = new ArrayList<>();
 }

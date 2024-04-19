@@ -1,8 +1,13 @@
 package com.example.demo.controllers.student;
 
 import com.example.demo.Config.JwtService;
+import com.example.demo.controllers.Course.CourseResponse;
+import com.example.demo.models.CourseModel;
+import com.example.demo.models.StudentCourseModel;
 import com.example.demo.models.StudentsModel;
 import com.example.demo.models.UserModel;
+import com.example.demo.repository.CourseRepository;
+import com.example.demo.repository.StudentCourseRepository;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.repository.UserRepository;
 import com.github.javafaker.Faker;
@@ -12,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +27,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final StudentCourseRepository studentCourseRepository;
 
     public StudentsModel createStudent(UserModel userModel) {
 
@@ -79,5 +87,35 @@ public class StudentService {
             // Unauthorized or resource not found
             throw new RuntimeException("Unauthorized or resource not found");
         }
+    }
+
+    public List<CourseResponse> viewEnrolledCourses(int Id, String authToken) {
+        String username = jwtService.extractUsername(authToken.substring(7));
+
+        Optional<UserModel> user = userRepository.findByUsername(username);
+        int userId = user.get().getId();
+
+        if (username == null || !user.isPresent() || userId != Id) {
+            throw new RuntimeException("Unauthorized or resource not found");
+        }
+
+        StudentsModel studentsModel = studentRepository.findById(Id);
+
+        List<StudentCourseModel> studentCourses = studentCourseRepository.findByStudent(studentsModel);
+        System.out.println("shdfjhfhdkhkdhfkjdhdh"+studentCourses);
+        List<CourseResponse> enrolledCourses = studentCourses.stream()
+                .map(studentCourse -> {
+                    CourseModel course = studentCourse.getCourse();
+                    return new CourseResponse(
+                            course.getId(),
+                            course.getCourseName(),
+                            course.getCourseDescription(),
+                            course.getCourseFee(),
+                            studentCourse.getReference()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return enrolledCourses;
     }
 }
