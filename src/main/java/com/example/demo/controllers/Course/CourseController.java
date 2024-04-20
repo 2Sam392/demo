@@ -1,5 +1,6 @@
 package com.example.demo.controllers.Course;
 import com.example.demo.models.CourseModel;
+import com.example.demo.models.StudentCourseModel;
 import com.example.demo.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +28,6 @@ public class CourseController {
             @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(courseService.enrolStudent(courseRequest.getCourseName(), id, authToken));
     }
-    @GetMapping("/getcourses/{id}")
-    public ResponseEntity<List<EnrolledCourseDTO>> getEnrolledCourses(
-            @PathVariable("studentId") int studentId,
-            @RequestHeader("Authorization") String authToken
-    ) {
-        List<EnrolledCourseDTO> enrolledCourses = courseService.viewEnrolledCourses(studentId, authToken);
-        return ResponseEntity.ok(enrolledCourses);
-    }
+
 
 }

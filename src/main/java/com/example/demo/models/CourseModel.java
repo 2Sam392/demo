@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class CourseModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "course")
-    private List<StudentCourseModel> studentCourses = new ArrayList<>();
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "course")
+//    private List<StudentCourseModel> studentCourses = new ArrayList<>();
 
 }

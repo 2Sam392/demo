@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/student")
@@ -26,8 +27,14 @@ public class StudentController {
     }
 
     @GetMapping("/getcourses/{id}")
-    public ResponseEntity<List<CourseResponse>> getCourses(@PathVariable int id,
+    public ResponseEntity<List<CourseEnrolmentResponse>> getCourses(@PathVariable int id,
                                                            @RequestHeader("Authorization") String authToken) {
         return ResponseEntity.ok(studentService.viewEnrolledCourses(id,authToken));
     }
+
+    @GetMapping("/graduation/{id}")
+    public ResponseEntity<GraduationResponse> graduate(@PathVariable int id, @RequestHeader("Authorization") String authToken) {
+        return ResponseEntity.ok(studentService.checkGraduateStudent(id,authToken));
+    }
+
 }
