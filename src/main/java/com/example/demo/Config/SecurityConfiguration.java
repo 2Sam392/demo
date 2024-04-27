@@ -30,7 +30,6 @@ public class SecurityConfiguration {
                     .authorizeHttpRequests(authorize -> authorize
                             .requestMatchers("/api/v1/**").permitAll()
                             .requestMatchers("/studentportal-docs/**").permitAll()
-                            .requestMatchers("/register", "/static/**").permitAll()
                             .anyRequest().authenticated()
                     )
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
