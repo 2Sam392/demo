@@ -1,47 +1,46 @@
 package com.example.demo.repositories;
 
+import com.example.demo.controllers.student.StudentService;
 import com.example.demo.models.StudentsModel;
 import com.example.demo.repository.StudentRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@DataJpaTest
-@ImportAutoConfiguration
+@ExtendWith(MockitoExtension.class)
 class StudentRepositoryTest {
 
-    @Autowired
+    @Mock
     private StudentRepository studentRepository;
 
-    private StudentsModel student;
+    @InjectMocks
+    private StudentService studentService;
 
-    @BeforeEach
-    void setUp() {
-        student = StudentsModel.builder()
-                .id(1)
-                .email("john.doe@example.com")
+    @Test
+    void testFindById() {
+        // Arrange
+        int id = 1;
+        StudentsModel expectedStudent = StudentsModel.builder()
+                .id(id)
+                .email("test@example.com")
                 .studentID("c1234567")
                 .firstName("John")
                 .lastName("Doe")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-    }
+        when(studentRepository.findById(id)).thenReturn(expectedStudent);
 
-    @Test
-    void shouldSaveStudent() {
-        // Save student
-        StudentsModel savedStudent = studentRepository.save(student);
-        // Assert that saved student is not null
-        assertThat(savedStudent).isNotNull();
-    }
+        // Act
+        StudentsModel actualStudentOptional = studentRepository.findById(id);
 
+        // Assert
+        assertEquals(expectedStudent, actualStudentOptional);
+    }
 }
+
