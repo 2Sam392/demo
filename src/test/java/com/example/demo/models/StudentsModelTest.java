@@ -24,6 +24,6 @@ class StudentsModelTest {
         assertEquals("c1234567", student.getStudentID());
         assertEquals("John", student.getFirstName());
         assertEquals("Doe", student.getLastName());
-        // Add more assertions as needed
+
     }
 }
