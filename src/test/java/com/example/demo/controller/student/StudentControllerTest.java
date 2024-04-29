@@ -1,5 +1,6 @@
 package com.example.demo.controller.student;
 
+import com.example.demo.Config.ResponseDefinition;
 import com.example.demo.controllers.student.CourseEnrolmentResponse;
 import com.example.demo.controllers.student.StudentController;
 import com.example.demo.controllers.student.StudentService;
@@ -33,10 +34,16 @@ class StudentControllerTest {
         StudentsModel expectedStudent = new StudentsModel();
         // Set up the expected student object
 
-        when(studentService.viewStudentByID(studentId, authToken)).thenReturn(expectedStudent);
+        ResponseDefinition<StudentsModel> expectedResponse = ResponseDefinition.<StudentsModel>builder()
+                .success(true)
+                .errorMessage(null)
+                .data(expectedStudent)
+                .build();
 
-        ResponseEntity<StudentsModel> response = studentController.getStudent(studentId, authToken);
-        assertEquals(expectedStudent, response.getBody());
+        when(studentService.viewStudentByID(studentId, authToken)).thenReturn(expectedResponse);
+
+        ResponseEntity<ResponseDefinition<StudentsModel>> response = studentController.getStudent(studentId, authToken);
+        assertEquals(expectedResponse, response.getBody());
     }
 
     @Test
@@ -48,10 +55,16 @@ class StudentControllerTest {
                 new CourseEnrolmentResponse("Course 2", "Description 2", 200.0, "REF002")
         );
 
-        when(studentService.viewEnrolledCourses(studentId, authToken)).thenReturn(expectedCourses);
+        ResponseDefinition<List<CourseEnrolmentResponse>> expectedResponse = ResponseDefinition.<List<CourseEnrolmentResponse>>builder()
+                .success(true)
+                .errorMessage(null)
+                .data(expectedCourses)
+                .build();
 
-        ResponseEntity<List<CourseEnrolmentResponse>> response = studentController.getCourses(studentId, authToken);
-        assertEquals(expectedCourses, response.getBody());
+        when(studentService.viewEnrolledCourses(studentId, authToken)).thenReturn(expectedResponse);
+
+        ResponseEntity<ResponseDefinition<List<CourseEnrolmentResponse>>> response = studentController.getCourses(studentId, authToken);
+        assertEquals(expectedResponse, response.getBody());
     }
 
 
