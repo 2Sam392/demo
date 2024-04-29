@@ -57,25 +57,19 @@ class StudentServiceTest {
 
     @Test
     void testCreateStudent() {
-        // Arrange
         UserModel userModel = new UserModel();
         userModel.setId(1);
         userModel.setEmail("test@example.com");
 
         when(studentRepository.existsById(userModel.getId())).thenReturn(false);
-
-        // Act
         ResponseDefinition<StudentsModel> createdStudent = studentService.createStudent(userModel);
 
-        // Assert
         verify(studentRepository, times(1)).save(any(StudentsModel.class));
-        // Add additional assertions as needed
     }
 
 
     @Test
     void testCreateStudent_StudentAlreadyExists() {
-        // Arrange
         UserModel userModel = new UserModel();
         userModel.setId(1);
         userModel.setEmail("test@example.com");
@@ -84,11 +78,7 @@ class StudentServiceTest {
         existingStudent.setId(userModel.getId());
 
         when(studentRepository.existsById(userModel.getId())).thenReturn(true);
-
-        // Act
         ResponseDefinition<StudentsModel> response = studentService.createStudent(userModel);
-
-        // Assert
         assertFalse(response.isSuccess());
         assertEquals("An error occurred", response.getErrorMessage());
         assertNull(response.getData());
@@ -96,7 +86,6 @@ class StudentServiceTest {
 
     @Test
     void testUpdateStudent() {
-        // Arrange
         int id = 1;
         String authToken = "Bearer token";
         StudentRequest studentRequest = new StudentRequest("John", "Doe");
@@ -113,25 +102,18 @@ class StudentServiceTest {
         when(jwtService.extractUsername(authToken.substring(7))).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(userModel));
         when(studentRepository.findById(anyInt())).thenReturn(existingStudentsModel);
-
-        // Act
         ResponseDefinition<StudentsModel> updatedStudent = studentService.updateStudent(id, authToken, studentRequest);
 
-        // Assert
         if (updatedStudent != null) {
             assertEquals("John", updatedStudent.getData().getFirstName());
             assertEquals("Doe", updatedStudent.getData().getLastName());
             assertEquals("test@example.com", updatedStudent.getData().getEmail());
             assertEquals("c1234567", updatedStudent.getData().getStudentID());
-        } else {
-            // Handle the case where updateStudent returns null
-            // You can add additional assertions or logging here
         }
     }
 
     @Test
     void testViewStudentByID() {
-        // Arrange
         int id = 1;
         String authToken = "Bearer token";
 
@@ -157,18 +139,13 @@ class StudentServiceTest {
                 .errorMessage(null)
                 .data(studentsModel)
                 .build().getData());
-
-        // Act
         ResponseDefinition<StudentsModel> student = studentService.viewStudentByID(id, authToken);
-
-        // Assert
         assertEquals(expectedResponse, student);
     }
 
 
     @Test
     void testCheckGraduateStudent_HasOutstandingBalance() throws Exception {
-        // Arrange
         int id = 1;
         String authToken = "Bearer token";
         String username = "testuser";
@@ -185,43 +162,31 @@ class StudentServiceTest {
         when(jwtService.extractUsername(authToken.substring(7))).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(userModel));
         when(studentRepository.findById(anyInt())).thenReturn(studentsModel);
-
-        // Mocking the response from the finance API
         FinanceResponse financeResponse = FinanceResponse.builder()
                 .id(1L)
                 .studentId(studentsModel.getStudentID())
                 .hasOutstandingBalance(true)
                 .build();
-
-        // Mocking the RestTemplate behavior
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
         mockServer.expect(requestTo(financeURL + "/accounts/student/" + studentsModel.getStudentID()))
                 .andRespond(withSuccess(new ObjectMapper().writeValueAsString(financeResponse), MediaType.APPLICATION_JSON));
-
-        // Set the financeURL property on the studentService instance
         ReflectionTestUtils.setField(studentService, "financeURL", financeURL);
-
-        // Act
         GraduationResponse response = studentService.checkGraduateStudent(id, authToken);
-
-        // Assert
         assertFalse(response.isEligible());
         assertEquals("You have an outstanding balance. Please clear your balance to graduate.", response.getMessage());
     }
 
     @Test
     void testCheckGraduateStudent_Unauthorized() {
-        // Arrange
         int studentId = 1;
         String token = "invalidToken";
         String username = "testuser";
 
         when(jwtService.extractUsername(token.substring(7))).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        // Act and Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> studentService.checkGraduateStudent(studentId, token));
-        assertEquals("Unauthorized or resource not found", exception.getMessage());
+        GraduationResponse response = studentService.checkGraduateStudent(studentId, token);
+        assertFalse(response.isEligible());
+        assertEquals("An error occurred", response.getMessage());
     }
 }
